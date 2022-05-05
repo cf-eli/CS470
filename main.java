@@ -6,7 +6,7 @@
  *
  * Author: Christiaan Masucci
  *
- * Date: 05/5/2022
+ * Date: 04/14/2022
  */
 
 import java.awt.*;
@@ -100,17 +100,11 @@ class Hospital
 						choice = Integer.parseInt(keyboard.readLine());
 						if(choice == 1)                                            //find information for a patient
 						{
-							System.out.print("Enter the patient id you want to view: ");
-							PID = Integer.parseInt(keyboard.readLine());
-							ViewPatient(PID);
+							ViewPatient();
 						}
 						else if(choice == 2)                                       //Replace the existing referring doctor with a new one
 						{
-							System.out.print("Enter the staff id you want to update: ");
-							VID = Integer.parseInt(keyboard.readLine());
-							System.out.print("\nEnter the id for the new referring doctor for the visit: ");
-							SID = Integer.parseInt(keyboard.readLine());
-							UpdateDoctor(VID, SID);
+							UpdateDoctor();
 						}
 						else
 							System.out.println("Invalid option try again");
@@ -154,7 +148,7 @@ class Hospital
 
 		ResultSet GetSName = stmt.executeQuery(StaffQuery);             //run query to make sure the staff member exists
 		if (!GetSName.next())       //if Staff member doesn't exist
-			System.out.println("Error. No such Voter Name. Try again");
+			System.out.println("Error. No such Staff Name. Try again");
 		else                        //passes all tests
 		{
 			String UpdateCommand = "UPDATE Staff " +
@@ -196,162 +190,85 @@ class Hospital
 
 	}
 
-	public static void ViewPatient(int PID) throws SQLException   //4th finding patient information
+	public static void ViewPatient() throws SQLException, IOException   //4th finding patient information
 	{
+		int PID;
 
+		System.out.print("Enter the patient id you want to view: ");
+		PID = Integer.parseInt(keyboard.readLine());
+
+		String StaffQuery =
+				"SELECT PName "
+						+ "FROM Staff "
+						+ "WHERE PID = " + PID;
+
+		ResultSet GetSName = stmt.executeQuery(StaffQuery);             //run query to make sure the Patient exists in the system
+		if (!GetSName.next())       //if Staff member doesn't exist
+			System.out.println("Error. No such Patient Name. Try again");
+		else                        //passes all tests
+		{
+			String PatientQuery = "SELECT PName, Age, Phone#, MainPhyschian " +
+					"FROM Patient " +
+					" WHERE PID = " + PID;
+
+			ResultSet PatientInfo = stmt.executeQuery(PatientQuery);
+
+			while (PatientInfo.next())
+			{
+				System.out.println("Patient info for: " + PatientInfo.getString(1) +
+						"\nAge: " + PatientInfo.getString(2) +
+						"\nPhone#: " + PatientInfo.getString(3) +
+						"\nMain Physician: " + PatientInfo.getString(4));
+			}
+			PatientInfo.close();
+		}
 
 	}
 
-	public static void UpdateDoctor(int VID, int SID) throws SQLException   //5th updating doctor for visit
+	public static void UpdateDoctor() throws SQLException, IOException   //5th updating doctor for visit
 	{
+		int VID, SID;
 
+		System.out.print("Enter the staff id you want to update: ");
+		VID = Integer.parseInt(keyboard.readLine());
+		System.out.print("\nEnter the id for the new referring doctor for the visit: ");
+		SID = Integer.parseInt(keyboard.readLine());
+
+		String StaffQuery =
+				"SELECT SName "
+						+ "FROM Staff "
+						+ "WHERE SID = " + SID;
+
+		String VisitQuery =
+				"SELECT VID "
+						+ "FROM Staff "
+						+ "WHERE SID = " + VID;
+
+		ResultSet GetSName = stmt.executeQuery(StaffQuery);             //run query to make sure the doctor and visit exists
+		if (!GetSName.next())       //if Staff member doesn't exist
+		{
+			System.out.println("Error. No such Staff Name. Try again");
+			return;
+		}
+		ResultSet GetVName = stmt.executeQuery(VisitQuery);
+		if (!GetVName.next())       //if visit doesn't exist
+			System.out.println("Error. No such Visit in the system. Try again");
+		else                        //passes all tests
+		{
+			String UpdateCommand = "UPDATE Visit " +
+					"SET SIDRefer = " + SID +
+					" WHERE VID = " + VID;
+
+			stmt.executeUpdate(UpdateCommand);
+
+			System.out.println("New doctor for visit updated successfully");
+		}
 	}
 
 	public static void FindStaffVisits(int VID) throws SQLException   //6th finding all staff that visit a patient
 	{
 
 	}
-
-	public static void NumOfCan(String PartyName) throws SQLException   //1st query counting Party Names
-	{
-
-		String CandidatesQuery =
-				"SELECT PARTYNAME "
-						+ "FROM labdatas22.CANDIDATES "
-						+ "WHERE PARTYNAME = '" + PartyName + "'";
-		ResultSet GetPName = stmt.executeQuery(CandidatesQuery);             //run query to make sur the Party exists
-
-		if (!GetPName.next())       //if party doesn't exist
-			System.out.println("Error. No such Party Name. Try again");
-		else                        //if party does exist
-		{
-			String PartyCountQuery = "Select count(PARTYNAME) " +       //Run the Count query for the Party
-					"From Labdatas22.CANDIDATES " +
-					"Where PARTYNAME = '" + PartyName + "'";
-
-			ResultSet GetPCount = stmt.executeQuery(PartyCountQuery);
-			GetPCount.next();                                           //Print the result
-			System.out.println("The " + PartyName + " Party has " + GetPCount.getString(1) + " candidates associated with it.");
-			GetPCount.close();
-		}
-	}
-
-	public static void AllVotes(String VoterName) throws SQLException       //2nd query to find candidate and coting place for certain voter
-	{
-		String VoterQuery =
-				"SELECT VOTERNAME "
-						+ "FROM labdatas22.VOTERS "
-						+ "WHERE VOTERNAME = '" + VoterName + "'";
-		ResultSet GetVName = stmt.executeQuery(VoterQuery);             //run query to make sure the Voter exists
-
-		if (!GetVName.next())       //if party doesn't exist
-			System.out.println("Error. No such Voter Name. Try again");
-		else                        //if party does exist
-		{
-			String PartyCountQuery = "Select CANDIDATENAME, VOTINGPLACE " +
-					"From Labdatas22.CANDIDATES INNER JOIN (SELECT * " +
-					"FROM labdatas22.VOTESMADE INNER JOIN labdatas22.VOTERS USING (VOTERID) " +
-					"Where VOTERNAME = '" + VoterName + "') USING (CANDIDATEID)";
-
-			ResultSet VoteList = stmt.executeQuery(PartyCountQuery);    //run query to find all votes
-
-			System.out.println("Candidate Name \tVoting Place");    //print result with header
-			while (VoteList.next()) {
-				System.out.println( VoteList.getString(1) + VoteList.getString(2));
-			}
-			VoteList.close();
-		}
-
-	}
-
-	public static void InsertVote() throws SQLException, IOException
-	{
-		String VotePlace;
-		int VoterID, CanId;
-
-		System.out.print("Enter the voter ID you want to add: ");
-		VoterID = Integer.parseInt(keyboard.readLine());
-		System.out.print("Enter the candidate ID you want to add: ");
-		CanId = Integer.parseInt(keyboard.readLine());
-		System.out.print("Enter the voting place you want to add: ");
-		VotePlace = keyboard.readLine();
-
-
-		String VoterQuery =
-				"SELECT VOTERNAME "
-						+ "FROM VOTERS "
-						+ "WHERE VOTERID = " + VoterID;
-		String CandidateQuery =
-				"SELECT CANDIDATEID "
-						+ "FROM CANDIDATES "
-						+ "WHERE CANDIDATEID = " + CanId;
-		String BothQuery =
-				"SELECT VOTERID "
-						+ "FROM VOTESMADE "
-						+ "WHERE VOTERID = " + VoterID + " AND CANDIDATEID = " + CanId;
-
-		ResultSet GetVName = stmt.executeQuery(VoterQuery);             //run query to make sure the Voter exists
-		if (!GetVName.next())       //if voter doesn't exist
-			System.out.println("Error. No such Voter Name. Try again");
-		ResultSet GetCName = stmt.executeQuery(CandidateQuery);
-		if(!GetCName.next())   //if Candidate doesnt exist
-			System.out.println("Error. No such Candidate Name. Try again");
-		ResultSet GetBoth = stmt.executeQuery(BothQuery);
-		if(GetBoth.next())     //if pair already exists
-			System.out.println("Error. There is already a vote match. Try again");
-		else                        //passes all tests
-		{
-			String InsertCommand = "Insert into VOTESMADE VALUES (" +
-					VoterID + ", " + CanId + ", '" + VotePlace + "')";
-
-			stmt.executeUpdate(InsertCommand);
-
-			System.out.println("New Vote inserted successfully");
-		}
-
-	}
-
-	public static void ElectionReport() throws SQLException, IOException
-	{
-		String OfficeListQuery =
-				"SELECT OFFICENAME "
-						+ "FROM labdatas22.OFFICE ";
-
-		ResultSet GetOList = stmt.executeQuery(OfficeListQuery); //get a list of all offices
-
-		List<String> Offices = new ArrayList<>();
-
-		while (GetOList.next())
-		{
-			Offices.add(GetOList.getString(1));
-		}
-
-		for(String Oname: Offices) {
-
-			String CanTableQuery =
-					"SELECT CANDIDATENAME, count(CANDIDATEID) " +
-							"FROM labdatas22.VOTESMADE INNER JOIN (" +
-							"labdatas22.CANDIDATES INNER JOIN labdatas22.OFFICE ON (RUNNINGFOROFFICEID =OFFICEID)) " +
-							"USING (CANDIDATEID) " +
-							"WHERE OFFICENAME = '" + Oname + "' " +
-							"GROUP BY CANDIDATENAME, CANDIDATEID " +
-							"HAVING count(CANDIDATEID) > 0" +
-							"ORDER BY count(CANDIDATEID) DESC";
-
-			//run statement to get all candidates with at least 1 vote for a specific Office
-			ResultSet GetCList = stmt.executeQuery(CanTableQuery);
-
-			System.out.println("\n\tVotes for " + Oname + "\nCandidate Name\t    Number of Votes");
-
-			while(GetCList.next())
-			{
-				System.out.println(GetCList.getString(1) + GetCList.getString(2));
-			}
-
-		}
-
-	}
-
 
 }
 
