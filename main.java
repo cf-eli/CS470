@@ -6,7 +6,7 @@
  *
  * Author: Christiaan Masucci
  *
- * Date: 04/14/2022
+ * Date: 05/5/2022
  */
 
 import java.awt.*;
@@ -84,13 +84,7 @@ class Hospital
 								"Selection: ");
 						choice = Integer.parseInt(keyboard.readLine());
 						if(choice == 1)                                                    //manager updates hours
-						{
-							System.out.print("Enter the staff id you want to update: ");
-							SID = Integer.parseInt(keyboard.readLine());
-							System.out.print("\nEnter how many hours they have worked: ");
-							hoursWorked = Integer.parseInt(keyboard.readLine());
-							UpdateHours(SID, hoursWorked);
-						}
+							UpdateHours();
 						else if(choice == 2)                               //manger views all hours
 							ViewHours();
 						else if(choice == 3)                           //manager resets all hours to 0
@@ -143,23 +137,68 @@ class Hospital
 		}
 	}
 
-	public static void UpdateHours(int SID, int HoursWorked) throws SQLException   //1st updating hours worked
+	public static void UpdateHours() throws SQLException, IOException   //1st updating hours worked
 	{
+		int SID, HoursWorked;
+
+		System.out.print("Enter the staff id you want to update: ");
+		SID = Integer.parseInt(keyboard.readLine());
+		System.out.print("\nEnter how many hours they have worked: ");
+		HoursWorked = Integer.parseInt(keyboard.readLine());
+
+
+		String StaffQuery =
+				"SELECT SName "
+						+ "FROM Staff "
+						+ "WHERE SID = " + SID;
+
+		ResultSet GetSName = stmt.executeQuery(StaffQuery);             //run query to make sure the staff member exists
+		if (!GetSName.next())       //if Staff member doesn't exist
+			System.out.println("Error. No such Voter Name. Try again");
+		else                        //passes all tests
+		{
+			String UpdateCommand = "UPDATE Staff " +
+					"SET HoursWorked = " + HoursWorked +
+					" WHERE SID = " + SID;
+
+			stmt.executeUpdate(UpdateCommand);
+
+			System.out.println("Staff hours updated successfully");
+		}
+
+
 
 	}
 
 	public static void ViewHours() throws SQLException   //2nd query listing hours for all staff
 	{
+		String HoursQuery =
+				"SELECT SName, Hours Worked "
+						+ "FROM Staff ";
+		ResultSet StaffHoursList = stmt.executeQuery(HoursQuery);             //run query that takes all hours for all staff
+
+		System.out.println("Staff Name \tHours worked");    //print result with header
+		while (StaffHoursList.next()) {
+			System.out.println( StaffHoursList.getString(1) + StaffHoursList.getString(2));
+		}
+		StaffHoursList.close();
 
 	}
 
 	public static void ResetHours() throws SQLException   //3rd resting hours worked to 0
 	{
+		String UpdateCommand = "UPDATE Staff " +
+				"SET HoursWorked = 0";
+
+		stmt.executeUpdate(UpdateCommand);             //run query that reset all hours to 0
+
+		System.out.println("Staff hours successfully reset to 0");    //print successfully sting
 
 	}
 
 	public static void ViewPatient(int PID) throws SQLException   //4th finding patient information
 	{
+
 
 	}
 
