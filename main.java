@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
-class lab4
+class Hospital
 {
 
 	static BufferedReader keyboard;
@@ -58,40 +58,75 @@ class lab4
 			}
 			rset.close();
 
-			int choice = 0;
-			String Pname;
-			String Vname;
+			int choice = 0;                 //global variables
+			int SID = 0;
+			int hoursWorked = 0;
+			int PID = 0;
+			int VID = 0;
 
-			while (choice != 5)     //Loop until user enters 5
+			while (choice != 4)     //Loop until user enters 5
 			{
-				System.out.print("\n\nDatabase choices:\n" +                //list of choices for user
-						"1) Find how many candidates are ascosiated with certain party\n" +
-						"2) Find the candidate and voting place for a every vote of a certain voter\n" +
-						"3) Add a new vote made to VotesMade table\n" +
-						"4) Print Election Report for Each office\n" +
-						"5) Exit program\n" +
+				System.out.print("\n\nWhich type of user are you:\n" +                //list of choices for user
+						"1) Manager\n" +
+						"2) Medical Staff\n" +
+						"3) Security\n" +
+						"4) Exit program\n" +
 						"Selection: ");
 				choice = Integer.parseInt(keyboard.readLine());             //Read in user choice
 
 				switch (choice)             //Switch case for all choices including invalid choice
 				{
 					case 1:
-						System.out.print("Enter the party name you would like to know about: ");
-						Pname = keyboard.readLine();
-						NumOfCan(Pname);
+						System.out.print("What would you like to do:\n" +           //list options for the manager
+								"1) Update hours for a staff member\n" +
+								"2) View hours worked for all staff members\n " +
+								"3) Set all hours back to 0\n" +
+								"Selection: ");
+						choice = Integer.parseInt(keyboard.readLine());
+						if(choice == 1)                                                    //manager updates hours
+						{
+							System.out.print("Enter the staff id you want to update: ");
+							SID = Integer.parseInt(keyboard.readLine());
+							System.out.print("\nEnter how many hours they have worked: ");
+							hoursWorked = Integer.parseInt(keyboard.readLine());
+							UpdateHours(SID, hoursWorked);
+						}
+						else if(choice == 2)                               //manger views all hours
+							ViewHours();
+						else if(choice == 3)                           //manager resets all hours to 0
+							ResetHours();
+						else
+							System.out.println("Invalid option try again");
 						break;
 					case 2:
-						System.out.print("Enter the voter name you want to know about: ");
-						Vname = keyboard.readLine();
-						AllVotes(Vname);
+						System.out.print("What would you like to do:\n" +                   //list options for medical staff
+								"1) Check the information for a patient\n" +
+								"2) Update the referring doctor for a patient\n " +
+								"Selection: ");
+						choice = Integer.parseInt(keyboard.readLine());
+						if(choice == 1)                                            //find information for a patient
+						{
+							System.out.print("Enter the patient id you want to view: ");
+							PID = Integer.parseInt(keyboard.readLine());
+							ViewPatient(PID);
+						}
+						else if(choice == 2)                                       //Replace the existing referring doctor with a new one
+						{
+							System.out.print("Enter the staff id you want to update: ");
+							VID = Integer.parseInt(keyboard.readLine());
+							System.out.print("\nEnter the id for the new referring doctor for the visit: ");
+							SID = Integer.parseInt(keyboard.readLine());
+							UpdateDoctor(VID, SID);
+						}
+						else
+							System.out.println("Invalid option try again");
 						break;
 					case 3:
-						InsertVote();
+						System.out.print("Enter the : ");
+						VID = Integer.parseInt(keyboard.readLine());
+						FindStaffVisits(VID);
 						break;
 					case 4:
-						ElectionReport();
-						break;
-					case 5:
 						System.out.println("Thank you");
 						break;
 					default:
@@ -106,6 +141,36 @@ class lab4
 		{
 			System.out.println("Caught SQL Exception: \n     " + e);
 		}
+	}
+
+	public static void UpdateHours(int SID, int HoursWorked) throws SQLException   //1st updating hours worked
+	{
+
+	}
+
+	public static void ViewHours() throws SQLException   //2nd query listing hours for all staff
+	{
+
+	}
+
+	public static void ResetHours() throws SQLException   //3rd resting hours worked to 0
+	{
+
+	}
+
+	public static void ViewPatient(int PID) throws SQLException   //4th finding patient information
+	{
+
+	}
+
+	public static void UpdateDoctor(int VID, int SID) throws SQLException   //5th updating doctor for visit
+	{
+
+	}
+
+	public static void FindStaffVisits(int VID) throws SQLException   //6th finding all staff that visit a patient
+	{
+
 	}
 
 	public static void NumOfCan(String PartyName) throws SQLException   //1st query counting Party Names
