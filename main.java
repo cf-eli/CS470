@@ -276,7 +276,7 @@ class Hospital
 							"INNER JOIN CheckIn on CheckIn.ID = RoomCheckIn.ID " +
 							"WHERE Patient.Name = '" + name +"'";
 		ResultSet result = stmt.executeQuery(StaffQuery);
-		if (!GetSName.next())       //if patient doesn't exist
+		if (!result.next())       //if patient doesn't exist
 		{
 			System.out.println("Error. No such Patient Name. Try again");
 			return;
@@ -284,7 +284,7 @@ class Hospital
 		System.out.println(name + " was seen by: ");
 		while (result.next())
 		{
-			System.out.println(result.getString(1));
+			System.out.println(result.getString(1) + " in room " + result.getString(3) + " in " +result.getString(4));
 		}
 		result.close();
 	}
