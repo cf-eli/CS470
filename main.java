@@ -273,7 +273,7 @@ class Hospital
 							"INNER JOIN Patient USING (PID) " +
 							"INNER JOIN Staff ON Visit.SIDRefer = Staff.SID " +
 							"INNER JOIN RoomCheckIn on Staff.SID = RoomCheckIn.SID " +
-							"INNER JOIN CheckIn on CheckIn.ID = RoomCheckIn.ID " +
+							"INNER JOIN CheckIn on CheckIn.CheckID = RoomCheckIn.CheckID " +
 							"WHERE Patient.Name = '" + name +"'";
 		ResultSet result = stmt.executeQuery(StaffQuery);
 		if (!result.next())       //if patient doesn't exist
