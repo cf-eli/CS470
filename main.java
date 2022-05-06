@@ -110,9 +110,9 @@ class Hospital
 							System.out.println("Invalid option try again");
 						break;
 					case 3:
-						System.out.print("Enter the : ");
-						VID = Integer.parseInt(keyboard.readLine());
-						FindStaffVisits(VID);
+						System.out.print("Enter the patient name to see who attended this patient (Ex. Sally Marna): ");
+						String name = (keyboard.readLine());
+						FindStaffVisits(name);
 						break;
 					case 4:
 						System.out.println("Thank you");
@@ -265,9 +265,26 @@ class Hospital
 		}
 	}
 
-	public static void FindStaffVisits(int VID) throws SQLException   //6th finding all staff that visit a patient
+	public static void FindStaffVisits(String name) throws SQLException, IOException   //6th finding all staff that visit a patient
 	{
-
+		String StaffQuery = "Select Staff.name, Patient.name " +
+							"FROM VisitPatient " +
+							"INNER JOIN Visit USING (VID) " +
+							"INNER JOIN Patient USING (PID) " +
+							"INNER JOIN Staff ON Visit.SIDRefer = Staff.SID " +
+							"WHERE Patient.Name = '" + name +"'";
+		ResultSet result = stmt.executeQuery(StaffQuery);
+		if (!GetSName.next())       //if patient doesn't exist
+		{
+			System.out.println("Error. No such Patient Name. Try again");
+			return;
+		}
+		System.out.println(name + " was seen by: ");
+		while (result.next())
+		{
+			System.out.println(result.getString(1));
+		}
+		result.close();
 	}
 
 }
