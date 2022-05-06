@@ -267,11 +267,13 @@ class Hospital
 
 	public static void FindStaffVisits(String name) throws SQLException, IOException   //6th finding all staff that visit a patient
 	{
-		String StaffQuery = "Select Staff.name, Patient.name " +
+		String StaffQuery = "Select Staff.name, Patient.name, CheckIn.Room#, RoomCheckIn.RCTime" +
 							"FROM VisitPatient " +
 							"INNER JOIN Visit USING (VID) " +
 							"INNER JOIN Patient USING (PID) " +
 							"INNER JOIN Staff ON Visit.SIDRefer = Staff.SID " +
+							"INNER JOIN RoomCheckIn on Staff.SID = RoomCheckIn.SID " +
+							"INNER JOIN CheckIn on CheckIn.ID = RoomCheckIn.ID " +
 							"WHERE Patient.Name = '" + name +"'";
 		ResultSet result = stmt.executeQuery(StaffQuery);
 		if (!GetSName.next())       //if patient doesn't exist
